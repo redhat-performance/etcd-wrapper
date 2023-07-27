@@ -1,1 +1,1 @@
-# etcd-wrapper
+# etcd-wrapper is a benchmark
