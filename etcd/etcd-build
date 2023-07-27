@@ -1,0 +1,52 @@
+#!/bin/bash
+
+install_etcd()
+{
+  cd /$1/$2/workloads/etcd_run
+
+  # Install Go (change the version number if needed)
+  curl -O https://dl.google.com/go/go1.17.1.linux-amd64.tar.gz
+  tar xvf go1.17.1.linux-amd64.tar.gz
+  sudo chown -R root:root ./go
+  sudo mv go /usr/local
+
+  # Set Go environment variables
+  echo 'export GOPATH=$HOME/go' >> ~/.bash_profile
+  echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.bash_profile
+  source ~/.bash_profile
+
+  # Clone etcd repo and checkout to the desired version
+  mkdir -p $GOPATH/src/github.com/etcd-io
+  cd $GOPATH/src/github.com/etcd-io
+  git clone https://github.com/etcd-io/etcd.git
+  cd etcd
+  git checkout v3.5.0 # or the version you want to build
+
+  # Build etcd
+  ./build
+
+  # Build the benchmark tool
+  cd tools/benchmark
+  go build
+
+  # Verify installation
+  $GOPATH/src/github.com/etcd-io/etcd/bin/etcd --version
+  $GOPATH/src/github.com/etcd-io/etcd/tools/benchmark/benchmark --help
+
+  echo "etcd and the benchmark tool have been installed successfully."
+}
+
+cat /proc/version | grep "Red Hat" > /dev/null
+if [ $? -eq 0 ]; then
+	yum install epel-release.noarch
+fi
+if [ -f "/bin/etcd" ]; then
+	if [ ! -f "/usr/local/bin/etcd" ]; then
+        	cp /bin/etcd /usr/local/bin/etcd
+        	chmod 755 /usr/local/bin/etcd
+	fi
+else
+        if [[ ! -f "/usr/local/bin/etcd" ]]; then
+                install_etcd $1 $2
+        fi
+fi
