@@ -2,7 +2,7 @@
 
 install_etcd()
 {
-  cd /$1/$2/workloads/etcd_run
+  mkdir -p $HOME/workloads/etcd_run
 
   # Install Go (change the version number if needed)
   curl -O https://dl.google.com/go/go1.17.1.linux-amd64.tar.gz
@@ -13,25 +13,26 @@ install_etcd()
   # Set Go environment variables
   echo 'export GOPATH=$HOME/go' >> ~/.bash_profile
   echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.bash_profile
+  echo 'export WORKLOAD_DIR=$HOME/workloads/'
   source ~/.bash_profile
 
   # Clone etcd repo and checkout to the desired version
-  mkdir -p $GOPATH/src/github.com/etcd-io
-  cd $GOPATH/src/github.com/etcd-io
+  mkdir -p $WORKLOAD_DIR/etcd-io
+  cd $WORKLOAD_DIR/etcd-io
   git clone https://github.com/etcd-io/etcd.git
   cd etcd
   git checkout v3.5.0 # or the version you want to build
 
   # Build etcd
-  ./build
+  ./build.sh
 
   # Build the benchmark tool
   cd tools/benchmark
   go build
 
   # Verify installation
-  $GOPATH/src/github.com/etcd-io/etcd/bin/etcd --version
-  $GOPATH/src/github.com/etcd-io/etcd/tools/benchmark/benchmark --help
+  $WORKLOAD_DIR/etcd-io/etcd/bin/etcd --version
+  $WORKLOAD_DIR/etcd-io/etcd/tools/benchmark/benchmark --help
 
   echo "etcd and the benchmark tool have been installed successfully."
 }
