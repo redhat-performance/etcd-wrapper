@@ -2,13 +2,13 @@
 
 install_etcd()
 {
-  mkdir -p $HOME/workloads/etcd_run
+  mkdir -p $HOME/workloads/
 
   # Install Go (change the version number if needed)
-  curl -O https://dl.google.com/go/go1.17.1.linux-amd64.tar.gz
-  tar xvf go1.17.1.linux-amd64.tar.gz
-  sudo chown -R root:root ./go
-  sudo mv go /usr/local
+  #curl -O https://dl.google.com/go/go1.17.1.linux-amd64.tar.gz
+  #tar xvf go1.17.1.linux-amd64.tar.gz
+  #sudo chown -R root:root ./go
+  #sudo mv go /usr/local
 
   # Set Go environment variables
   echo 'export GOPATH=$HOME/go' >> ~/.bash_profile
