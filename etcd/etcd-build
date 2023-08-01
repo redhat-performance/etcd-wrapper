@@ -2,13 +2,11 @@
 
 install_etcd()
 {
-  mkdir -p $HOME/workloads/
 
-  # Install Go (change the version number if needed)
-  #curl -O https://dl.google.com/go/go1.17.1.linux-amd64.tar.gz
-  #tar xvf go1.17.1.linux-amd64.tar.gz
-  #sudo chown -R root:root ./go
-  #sudo mv go /usr/local
+  mkdir -p $HOME/workloads/etcd-io
+
+  # Install required packages
+  dnf install go
 
   # Set Go environment variables
   echo 'export GOPATH=$HOME/go' >> ~/.bash_profile
@@ -35,6 +33,7 @@ install_etcd()
   $WORKLOAD_DIR/etcd-io/etcd/tools/benchmark/benchmark --help
 
   echo "etcd and the benchmark tool have been installed successfully."
+
 }
 
 cat /proc/version | grep "Red Hat" > /dev/null
