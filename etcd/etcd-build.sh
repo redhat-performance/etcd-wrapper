@@ -41,13 +41,47 @@ install_etcd()
   echo "etcd and the benchmark tool have been installed successfully."
 }
 
-cat /proc/version | grep "Red Hat" > /dev/null
+# Check for /etc/os-release and determine distribution.
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    case $ID in
+        ubuntu)
+            DISTRO_NAME="Ubuntu"
+            ;;
+        rhel)
+            DISTRO_NAME="RHEL"
+            ;;
+        *)
+            DISTRO_NAME="Unknown"
+            ;;
+    esac
+# Check for /etc/redhat-release, a common file in Red Hat based systems.
+elif [ -f /etc/redhat-release ]; then
+    CONTENT=$(cat /etc/redhat-release)
+    if [[ $CONTENT = *Red\ Hat* ]]; then
+        DISTRO_NAME="RHEL"
+    else
+        DISTRO_NAME="Unknown"
+    fi
+# Check for /etc/lsb-release, which is often found on Ubuntu systems.
+elif [ -f /etc/lsb-release ]; then
+    CONTENT=$(cat /etc/lsb-release | grep DISTRIB_ID | cut -d"=" -f2)
+    if [[ $CONTENT = "Ubuntu" ]]; then
+        DISTRO_NAME="Ubuntu"
+    else
+        DISTRO_NAME="Unknown"
+    fi
+else
+    DISTRO_NAME="Unknown"
+fi
+
 if [ "$DISTRO_NAME" = "RHEL" ]; then
 	yum install epel-release.noarch || { echo "Failed to install epel-release."; exit 1; }
 fi
 
 #Fetch latest version for etcd-io
 ETCD_VERSION=$(git ls-remote --tags https://github.com/etcd-io/etcd.git | sort -t '/' -k 3 -V | awk -F"/" '{print $3}' | tail -n1)
+
 if [ -z "$ETCD_VERSION" ]; then
     echo "Failed to retrieve the latest version of etcd. Defaulting to v3.5.0."
     ETCD_VERSION="v3.5.0"
